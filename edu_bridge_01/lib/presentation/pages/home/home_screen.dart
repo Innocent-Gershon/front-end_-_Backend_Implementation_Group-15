@@ -1,21 +1,71 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../bloc/auth/auth_bloc.dart';
+import '../../bloc/auth/auth_state.dart';
+import '../../bloc/auth/auth_event.dart';
 
-// Enum to define different user types
 enum UserType { teacher, student, parent, guest }
 
-class HomeScreen extends StatefulWidget {
-  final UserType userType;
-
-  const HomeScreen({super.key, required this.userType});
-
-  @override
-  State<HomeScreen> createState() => _HomeScreenState();
+UserType stringToUserType(String roleString) {
+  switch (roleString.toLowerCase()) {
+    case 'student':
+      return UserType.student;
+    case 'teacher':
+      return UserType.teacher;
+    case 'parent':
+      return UserType.parent;
+    case 'admin':
+      return UserType.teacher;
+    default:
+      return UserType.guest;
+  }
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class HomeScreen extends StatelessWidget {
+  const HomeScreen({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<AuthBloc, AuthState>(
+      builder: (context, state) {
+        if (state is AuthAuthenticated) {
+          final userType = stringToUserType(state.userType);
+          return _HomeScreenContent(
+            userType: userType,
+            userName: state.name,
+            userEmail: state.email,
+          );
+        }
+        
+        return const Scaffold(
+          body: Center(
+            child: CircularProgressIndicator(),
+          ),
+        );
+      },
+    );
+  }
+}
+
+class _HomeScreenContent extends StatefulWidget {
+  final UserType userType;
+  final String userName;
+  final String userEmail;
+
+  const _HomeScreenContent({
+    Key? key,
+    required this.userType,
+    required this.userName,
+    required this.userEmail,
+  }) : super(key: key);
+
+  @override
+  State<_HomeScreenContent> createState() => _HomeScreenContentState();
+}
+
+class _HomeScreenContentState extends State<_HomeScreenContent> {
   int _selectedIndex = 0; // For bottom navigation bar
 
-  // Helper method to get the correct icon for the bottom navigation
   IconData _getBottomNavIcon(int index) {
     switch (widget.userType) {
       case UserType.student:
@@ -43,7 +93,7 @@ class _HomeScreenState extends State<HomeScreen> {
         if (index == 3) return Icons.settings;
         break;
     }
-    return Icons.error; // Should not happen
+    return Icons.error;
   }
 
   // Helper method to get the correct label for the bottom navigation
@@ -81,8 +131,8 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() {
       _selectedIndex = index;
     });
-    // In a real app, you would navigate to different screens here
-    // For now, we are just changing the selected index.
+    // You can navigate to different screens here
+    
     print("Navigating to: ${_getBottomNavLabel(index)} for ${widget.userType}");
   }
 
@@ -104,9 +154,10 @@ class _HomeScreenState extends State<HomeScreen> {
               CircleAvatar(
                 radius: 24,
                 backgroundColor: Colors.grey[200],
-                backgroundImage: const AssetImage('assets/profile_pic.png'), // Add an image to your assets
+                backgroundImage: const AssetImage('assets/profile_pic.png'),
               ),
               const SizedBox(width: 12),
+
               // Welcome Message and User Name
               Expanded(
                 child: Column(
@@ -120,9 +171,9 @@ class _HomeScreenState extends State<HomeScreen> {
                         fontWeight: FontWeight.w500,
                       ),
                     ),
-                    const Text(
-                      'User Name', // Placeholder for user name
-                      style: TextStyle(
+                    Text(
+                      widget.userName,
+                      style: const TextStyle(
                         fontSize: 18,
                         color: Colors.black,
                         fontWeight: FontWeight.bold,
@@ -131,7 +182,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   ],
                 ),
               ),
-              // Search and Notification Icons
+              
               Container(
                 decoration: BoxDecoration(
                   color: Colors.grey[100],
@@ -153,7 +204,38 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: IconButton(
                   icon: Icon(Icons.notifications_none, color: Colors.grey[700]),
                   onPressed: () {
-                    // Handle notifications action
+                  },
+                ),
+              ),
+              const SizedBox(width: 8),
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.grey[100],
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: IconButton(
+                  icon: Icon(Icons.logout, color: Colors.grey[700]),
+                  onPressed: () {
+                    showDialog(
+                      context: context,
+                      builder: (context) => AlertDialog(
+                        title: const Text('Logout'),
+                        content: const Text('Are you sure you want to logout?'),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.pop(context),
+                            child: const Text('Cancel'),
+                          ),
+                          ElevatedButton(
+                            onPressed: () {
+                              Navigator.pop(context);
+                              context.read<AuthBloc>().add(AuthLogoutRequested());
+                            },
+                            child: const Text('Logout'),
+                          ),
+                        ],
+                      ),
+                    );
                   },
                 ),
               ),
@@ -203,8 +285,8 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ],
         currentIndex: _selectedIndex,
-        selectedItemColor: Colors.blueAccent, // Selected icon color
-        unselectedItemColor: Colors.grey, // Unselected icon color
+        selectedItemColor: Colors.blueAccent,
+        unselectedItemColor: Colors.grey, 
         onTap: _onItemTapped,
         type: BottomNavigationBarType.fixed, // Ensures all items are visible
         backgroundColor: Colors.white,
@@ -238,7 +320,7 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
         const SizedBox(height: 16),
         SizedBox(
-          height: 150, // Height for the horizontal cards
+          height: 150,
           child: ListView(
             scrollDirection: Axis.horizontal,
             children: [
@@ -320,15 +402,15 @@ class _HomeScreenState extends State<HomeScreen> {
               fontSize: 12,
             ),
           ),
-          const Spacer(), // Pushes content to the bottom
-          // No progress bar or percentage here, as per "no dummy data"
+          const Spacer(),
+          
         ],
       ),
     );
   }
 
   Widget _buildMyTaskSection(BuildContext context) {
-    // This section is only relevant for students and teachers who have tasks
+    
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -342,7 +424,7 @@ class _HomeScreenState extends State<HomeScreen> {
             Expanded(
               child: ElevatedButton(
                 onPressed: () {
-                  // Handle active tasks filter
+                  
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.blueAccent,
@@ -385,134 +467,8 @@ class _HomeScreenState extends State<HomeScreen> {
             print('Add new task for ${widget.userType}');
           },
         ),
-        // If you want to show a single task card structure without data:
-        // _buildEmptyTaskCard(priority: 'High', priorityColor: Colors.orange),
-        // const SizedBox(height: 16),
-        // _buildEmptyTaskCard(priority: 'Medium', priorityColor: Colors.blue),
+        
       ],
-    );
-  }
-
-  Widget _buildEmptyTaskCard({
-    required String priority,
-    required Color priorityColor,
-  }) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
-            spreadRadius: 1,
-            blurRadius: 5,
-            offset: const Offset(0, 3), // changes position of shadow
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Expanded(
-                child: Text(
-                  'Task Title Placeholder', // Generic title
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: priorityColor.withOpacity(0.2),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Text(
-                  priority,
-                  style: TextStyle(
-                    color: priorityColor,
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'This is where task description will appear.',
-            style: TextStyle(
-              fontSize: 14,
-              color: Colors.grey[600],
-            ),
-          ),
-          const SizedBox(height: 12),
-          // No tags or status here, as per "no dummy data"
-          // You could put a small placeholder for tags if the design implies them
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: [
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                decoration: BoxDecoration(
-                  color: Colors.grey[200],
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Text(
-                  'Tag',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.grey[700],
-                  ),
-                ),
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                decoration: BoxDecoration(
-                  color: Colors.grey[200],
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Text(
-                  'Placeholder',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.grey[700],
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Row(
-            children: [
-              Icon(Icons.access_time, size: 16, color: Colors.grey[600]),
-              const SizedBox(width: 4),
-              Text(
-                'No status',
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Colors.grey[600],
-                ),
-              ),
-              const Spacer(),
-              Text(
-                'Due date: N/A',
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Colors.grey[600],
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
     );
   }
 
@@ -525,13 +481,13 @@ class _HomeScreenState extends State<HomeScreen> {
           style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 16),
-        // Placeholder for recent updates
+      
         _buildEmptyPlaceholderCard(
           icon: Icons.info_outline,
           message: 'No recent updates at the moment.',
           buttonText: 'Check for updates',
           onButtonPressed: () {
-            // Handle refresh updates action
+            
             print('Refresh updates for ${widget.userType}');
           },
         ),
