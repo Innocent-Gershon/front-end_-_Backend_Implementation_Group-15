@@ -36,6 +36,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           userId: user.uid,
           email: user.email ?? event.email,
           name: userData?['name'] ?? user.displayName ?? 'User',
+          userType: userData?['userType'] ?? 'Student',
         ));
       } else {
         emit(const AuthError('Login failed'));
@@ -90,21 +91,26 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       final user = userCredential.user;
       
       if (user != null) {
-        // Save user data if it's a new user
         final userData = await _authRepository.getUserData(user.uid);
         if (userData == null) {
           await _authRepository.saveUserData(
             uid: user.uid,
             email: user.email ?? '',
             name: user.displayName ?? 'Google User',
-            userType: 'Student', // Default user type
+            userType: 'Student',
           );
         }
+        
+        final currentUserData = userData ?? {
+          'name': user.displayName ?? 'Google User',
+          'userType': 'Student',
+        };
         
         emit(AuthAuthenticated(
           userId: user.uid,
           email: user.email ?? '',
-          name: user.displayName ?? 'Google User',
+          name: currentUserData['name'] ?? 'Google User',
+          userType: currentUserData['userType'] ?? 'Student',
         ));
       } else {
         emit(const AuthError('Google sign in failed'));
@@ -122,13 +128,13 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     emit(AuthLoading());
     
     try {
-      // TODO: Implement Firebase sign up
-      await Future.delayed(const Duration(seconds: 2)); // Simulate API call
+      await Future.delayed(const Duration(seconds: 2));
       
       emit(const AuthAuthenticated(
         userId: 'newuser123',
         email: 'newuser@example.com',
         name: 'New User',
+        userType: 'Student',
       ));
     } catch (e) {
       emit(AuthError(e.toString()));
@@ -169,6 +175,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           userId: user.uid,
           email: event.email,
           name: event.fullName,
+          userType: event.userType,
         ));
       } else {
         emit(const AuthError('Sign up failed'));
@@ -217,6 +224,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           userId: user.uid,
           email: user.email ?? '',
           name: userData?['name'] ?? user.displayName ?? 'User',
+          userType: userData?['userType'] ?? 'Student',
         ));
       } else {
         emit(AuthUnauthenticated());

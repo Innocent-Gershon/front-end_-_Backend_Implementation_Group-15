@@ -128,10 +128,12 @@ class _SignUpPageState extends State<SignUpPage> {
               });
             }
           } else if (state is AuthAuthenticated) {
-            Navigator.of(context).pushNamedAndRemoveUntil(
-              '/home',
-              (route) => false,
-            );
+            Future.microtask(() {
+              Navigator.of(context).pushNamedAndRemoveUntil(
+                '/home',
+                (route) => false,
+              );
+            });
           }
         },
         builder: (context, state) {
