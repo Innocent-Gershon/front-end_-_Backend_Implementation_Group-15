@@ -8,9 +8,11 @@ import 'data/repositories/auth_repository.dart';
 import 'presentation/bloc/splash/splash_bloc.dart';
 import 'presentation/bloc/auth/auth_bloc.dart';
 import 'presentation/bloc/auth/auth_state.dart';
+import 'presentation/bloc/auth/auth_event.dart';
 import 'presentation/pages/splash/splash_screen.dart';
 import 'presentation/pages/home/home_screen.dart';
 import 'presentation/pages/auth/login_screen.dart';
+import 'presentation/pages/auth/signup_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -32,19 +34,29 @@ class EduBridgeApp extends StatelessWidget {
         title: AppStrings.appName,
         theme: AppTheme.lightTheme,
         debugShowCheckedModeBanner: false,
-        home: BlocBuilder<AuthBloc, AuthState>(
+        home: BlocConsumer<AuthBloc, AuthState>(
+          listener: (context, state) {
+            if (state is AuthUnauthenticated) {
+              Navigator.of(context).pushNamedAndRemoveUntil(
+                '/login',
+                (route) => false,
+              );
+            }
+          },
           builder: (context, state) {
             if (state is AuthAuthenticated) {
               return const HomeScreen();
             } else if (state is AuthUnauthenticated) {
               return const LoginPage();
             }
+            context.read<AuthBloc>().add(AuthCheckRequested());
             return const SplashScreen();
           },
         ),
         routes: {
           '/home': (context) => const HomeScreen(),
           '/login': (context) => const LoginPage(),
+          '/signup': (context) => const SignUpPage(),
         },
       ),
     );
