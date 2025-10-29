@@ -5,6 +5,107 @@ import '../../bloc/auth/auth_bloc.dart';
 import '../../bloc/auth/auth_state.dart';
 import '../../bloc/auth/auth_event.dart';
 
+/*
+ * ============================================================================
+ * EDUBRIDGE HOME SCREEN - ROLE-BASED UI ARCHITECTURE
+ * ============================================================================
+ * 
+ * This screen implements a role-based dashboard system with clear relationships
+ * between different user types. The UI is designed with glassmorphism effects
+ * for a modern, premium look and feel.
+ * 
+ * USER ROLE RELATIONSHIPS & BACKEND REQUIREMENTS:
+ * ============================================================================
+ * 
+ * 1. TEACHER → STUDENT RELATIONSHIP (Content Creation → Consumption)
+ *    -----------------------------------------------------------------
+ *    Teachers CREATE content that Students CONSUME:
+ * 
+ *    TEACHER ACTIONS                    →  STUDENT VIEWS
+ *    -----------------                     --------------
+ *    • Create Assignments               →  My Assignments (view & submit)
+ *    • Mark Attendance                  →  My Attendance (view records)
+ *    • Grade Students                   →  My Grades (check grades)
+ *    • Manage Classes (schedule)        →  My Classes (view schedule)
+ *    • Post Announcements               →  Announcements (read updates)
+ *    • Upload Study Resources           →  Study Resources (access materials)
+ * 
+ *    Backend Implementation:
+ *    - Assignment collection: { teacherId, studentIds[], title, description, dueDate, status }
+ *    - Attendance collection: { teacherId, classId, studentId, date, status }
+ *    - Grades collection: { teacherId, studentId, subject, grade, remarks }
+ *    - Classes collection: { teacherId, studentIds[], schedule, subject }
+ *    - Announcements collection: { teacherId, classId, message, timestamp }
+ * 
+ * 2. TEACHER/STUDENT → PARENT RELATIONSHIP (Monitoring & Communication)
+ *    -----------------------------------------------------------------
+ *    Parents MONITOR their child's activities and COMMUNICATE with teachers:
+ * 
+ *    PARENT VIEWS                           ← DATA SOURCE
+ *    ------------                             -----------
+ *    • Child's Assignments                 ← Student's assignment data
+ *    • Child's Attendance                  ← Student's attendance records
+ *    • Child's Grades                      ← Student's academic performance
+ *    • Class Schedule                      ← Student's class timetable
+ *    • Teacher Communication               ← Messages from teachers
+ *    • School Announcements                ← School-wide updates
+ * 
+ *    Backend Implementation:
+ *    - Parent-Child relationship: { parentId, childId (studentId) }
+ *    - Parent dashboard queries student data filtered by childId
+ *    - Teacher-Parent messaging: { teacherId, parentId, studentId, message, timestamp }
+ * 
+ * 3. GUEST USER (Limited Access)
+ *    -----------------------------------------------------------------
+ *    • Explore Features (view app capabilities)
+ *    • Sign Up (create new account)
+ *    • About Us (learn about the platform)
+ * 
+ * ============================================================================
+ * UI DESIGN CONSISTENCY:
+ * ============================================================================
+ * All user types (Teacher, Student, Parent) use the SAME glassmorphism design:
+ * - Glassmorphic app bar with blur effects
+ * - Category cards with gradient overlays
+ * - Task section with gradient buttons (Active/Completed)
+ * - Recent updates with glassmorphic containers
+ * - Minimalistic "Create Task" modal with clean, white background
+ * 
+ * Color Schemes (User-specific):
+ * - Student: Purple gradient (#6C63FF → #9C95FF)
+ * - Teacher: Blue gradient (#2D9CDB → #56CCF2)
+ * - Parent: Red-Orange gradient (#EB5757 → #F2994A)
+ * 
+ * ============================================================================
+ * BACKEND INTEGRATION GUIDE:
+ * ============================================================================
+ * 
+ * To integrate this UI with the backend:
+ * 
+ * 1. Replace placeholder data in _getAllCategories() with Firestore queries:
+ *    - Teachers: Query assignments, attendance records, grades to create
+ *    - Students: Query their assigned tasks, attendance, grades to view
+ *    - Parents: Query child's data using parent-child relationship
+ * 
+ * 2. Implement _buildMyTaskSection() with real task data:
+ *    - Fetch active/completed tasks based on user type
+ *    - Teachers: Tasks to review/grade
+ *    - Students: Assigned homework/projects
+ *    - Parents: Child's pending tasks
+ * 
+ * 3. Implement _buildRecentUpdatesSection() with real-time updates:
+ *    - Use Firestore snapshots for live updates
+ *    - Teachers: Student submissions, new messages
+ *    - Students: New assignments, grade updates
+ *    - Parents: Teacher messages, child's progress updates
+ * 
+ * 4. Connect Create Task modal (_showAddTaskModal) to Firestore:
+ *    - Save task with userId, userType, priority, dueDate, etc.
+ *    - Implement proper error handling and success feedback
+ * 
+ * ============================================================================
+ */
+
 enum UserType { teacher, student, parent, guest }
 
 UserType stringToUserType(String roleString) {
@@ -207,30 +308,34 @@ class _HomeScreenContentState extends State<_HomeScreenContent> with SingleTicke
 
   List<Map<String, dynamic>> _getAllCategories() {
     if (widget.userType == UserType.teacher) {
+      // Teacher creates/manages content that students consume
       return [
-        {'title': 'Assignment To Review', 'placeholder': 'No assignments due', 'color': Colors.blue[800]!},
-        {'title': 'Attendance Track', 'placeholder': 'No data available', 'color': Colors.teal[700]!},
-        {'title': 'Grade Book', 'placeholder': 'Grade students', 'color': Colors.orange[800]!},
-        {'title': 'Class Schedule', 'placeholder': 'View schedule', 'color': Colors.purple[700]!},
-        {'title': 'Student Reports', 'placeholder': 'Generate reports', 'color': Colors.indigo[700]!},
+        {'title': 'Create Assignments', 'placeholder': 'Create new assignments', 'color': Colors.blue[800]!},
+        {'title': 'Mark Attendance', 'placeholder': 'Track student attendance', 'color': Colors.teal[700]!},
+        {'title': 'Grade Students', 'placeholder': 'Enter student grades', 'color': Colors.orange[800]!},
+        {'title': 'Manage Classes', 'placeholder': 'Schedule & organize classes', 'color': Colors.purple[700]!},
+        {'title': 'Student Reports', 'placeholder': 'Generate progress reports', 'color': Colors.indigo[700]!},
+        {'title': 'Announcements', 'placeholder': 'Post updates & notices', 'color': Colors.green[700]!},
       ];
     } else if (widget.userType == UserType.student) {
+      // Student consumes content created by teachers
       return [
-        {'title': 'Upcoming Classes', 'placeholder': 'No classes scheduled', 'color': Colors.green[700]!},
-        {'title': 'My Grades', 'placeholder': 'View your grades', 'color': Colors.orange[800]!},
-        {'title': 'Assignments', 'placeholder': 'Submit work', 'color': Colors.blue[800]!},
-        {'title': 'Study Resources', 'placeholder': 'Access materials', 'color': Colors.purple[700]!},
-        {'title': 'Attendance Track', 'placeholder': 'View attendance', 'color': Colors.teal[700]!},
-        {'title': 'Exam Schedule', 'placeholder': 'Upcoming exams', 'color': Colors.red[700]!},
+        {'title': 'My Assignments', 'placeholder': 'View & submit assignments', 'color': Colors.blue[800]!},
+        {'title': 'My Attendance', 'placeholder': 'View attendance records', 'color': Colors.teal[700]!},
+        {'title': 'My Grades', 'placeholder': 'Check your grades', 'color': Colors.orange[800]!},
+        {'title': 'My Classes', 'placeholder': 'View class schedule', 'color': Colors.purple[700]!},
+        {'title': 'Study Resources', 'placeholder': 'Access learning materials', 'color': Colors.indigo[700]!},
+        {'title': 'Announcements', 'placeholder': 'Read school updates', 'color': Colors.green[700]!},
       ];
     } else if (widget.userType == UserType.parent) {
+      // Parent monitors child's activities (student data + teacher communications)
       return [
-        {'title': 'Child Progress', 'placeholder': 'No reports available', 'color': Colors.purple[700]!},
-        {'title': 'Attendance Track', 'placeholder': 'View attendance', 'color': Colors.teal[700]!},
-        {'title': 'Academic Reports', 'placeholder': 'View grades', 'color': Colors.orange[800]!},
-        {'title': 'Teacher Messages', 'placeholder': 'Chat with teachers', 'color': Colors.blue[800]!},
-        {'title': 'School Events', 'placeholder': 'Upcoming events', 'color': Colors.green[700]!},
-        {'title': 'Fee Payments', 'placeholder': 'Payment history', 'color': Colors.indigo[700]!},
+        {'title': "Child's Assignments", 'placeholder': 'Track assignment progress', 'color': Colors.blue[800]!},
+        {'title': "Child's Attendance", 'placeholder': 'Monitor attendance records', 'color': Colors.teal[700]!},
+        {'title': "Child's Grades", 'placeholder': 'View academic performance', 'color': Colors.orange[800]!},
+        {'title': 'Class Schedule', 'placeholder': "View child's timetable", 'color': Colors.purple[700]!},
+        {'title': 'Teacher Communication', 'placeholder': 'Messages from teachers', 'color': Colors.indigo[700]!},
+        {'title': 'School Announcements', 'placeholder': 'Important updates', 'color': Colors.green[700]!},
       ];
     } else {
       return [
@@ -628,75 +733,6 @@ class _HomeScreenContentState extends State<_HomeScreenContent> with SingleTicke
           ),
         ),
       ),
-    );
-  }
-
-  // Helper: Build glassmorphic text field for forms
-  Widget _buildGlassmorphicTextField({
-    required TextEditingController controller,
-    required String hint,
-    int maxLines = 1,
-  }) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(16),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-        child: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [
-                Colors.white.withOpacity(0.7),
-                Colors.white.withOpacity(0.5),
-              ],
-            ),
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(
-              color: Colors.white.withOpacity(0.5),
-              width: 1.5,
-            ),
-          ),
-          child: TextField(
-            controller: controller,
-            maxLines: maxLines,
-            style: const TextStyle(fontSize: 15, color: Colors.black87),
-            decoration: InputDecoration(
-              hintText: hint,
-              hintStyle: TextStyle(color: Colors.grey[600]),
-              border: InputBorder.none,
-              contentPadding: const EdgeInsets.all(18),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  // Helper: Build field label with optional required indicator
-  Widget _buildFieldLabel(String label, IconData icon, {bool required = false}) {
-    return Row(
-      children: [
-        Icon(icon, color: _getPrimaryGradientColor(), size: 20),
-        const SizedBox(width: 8),
-        Text(
-          label,
-          style: const TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-            color: Colors.black87,
-          ),
-        ),
-        if (required) ...[
-          const SizedBox(width: 4),
-          const Text(
-            '*',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: Colors.red,
-            ),
-          ),
-        ],
-      ],
     );
   }
 
@@ -1102,15 +1138,15 @@ class _HomeScreenContentState extends State<_HomeScreenContent> with SingleTicke
             children: [
               if (widget.userType == UserType.teacher) ...[
                 _buildEmptyCategoryCard(
-                  title: 'Assignment To Review',
-                  placeholder: 'No assignments due',
+                  title: 'Create Assignments',
+                  placeholder: 'Create new assignments',
                   color: Colors.blue[800]!,
                   context: context,
                 ),
                 const SizedBox(width: 16),
                 _buildEmptyCategoryCard(
-                  title: 'Attendance Track',
-                  placeholder: 'No data available',
+                  title: 'Mark Attendance',
+                  placeholder: 'Track student attendance',
                   color: Colors.teal[700]!,
                   context: context,
                 ),
@@ -1118,31 +1154,31 @@ class _HomeScreenContentState extends State<_HomeScreenContent> with SingleTicke
 
               if (widget.userType == UserType.student) ...[
                 _buildEmptyCategoryCard(
-                  title: 'Upcoming Classes',
-                  placeholder: 'No classes scheduled',
-                  color: Colors.green[700]!,
+                  title: 'My Assignments',
+                  placeholder: 'View & submit assignments',
+                  color: Colors.blue[800]!,
                   context: context,
                 ),
                 const SizedBox(width: 16),
                 _buildEmptyCategoryCard(
-                  title: 'My Grades',
-                  placeholder: 'View your grades',
-                  color: Colors.orange[800]!,
+                  title: 'My Attendance',
+                  placeholder: 'View attendance records',
+                  color: Colors.teal[700]!,
                   context: context,
                 ),
               ],
 
               if (widget.userType == UserType.parent) ...[
                 _buildEmptyCategoryCard(
-                  title: 'Child Progress',
-                  placeholder: 'No reports available',
-                  color: Colors.purple[700]!,
+                  title: "Child's Assignments",
+                  placeholder: 'Track assignment progress',
+                  color: Colors.blue[800]!,
                   context: context,
                 ),
                 const SizedBox(width: 16),
                 _buildEmptyCategoryCard(
-                  title: 'Attendance Track',
-                  placeholder: 'View attendance',
+                  title: "Child's Attendance",
+                  placeholder: 'Monitor attendance records',
                   color: Colors.teal[700]!,
                   context: context,
                 ),
@@ -1182,8 +1218,9 @@ class _HomeScreenContentState extends State<_HomeScreenContent> with SingleTicke
         filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
         child: Container(
           width: 160,
+          height: 155,
           margin: const EdgeInsets.only(right: 0),
-          padding: const EdgeInsets.all(18),
+          padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
             gradient: LinearGradient(
               begin: Alignment.topLeft,
@@ -1214,6 +1251,7 @@ class _HomeScreenContentState extends State<_HomeScreenContent> with SingleTicke
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            mainAxisSize: MainAxisSize.min,
             children: [
               Container(
                 padding: const EdgeInsets.all(10),
@@ -1231,34 +1269,38 @@ class _HomeScreenContentState extends State<_HomeScreenContent> with SingleTicke
                   size: 24,
                 ),
               ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 15,
-                      fontWeight: FontWeight.bold,
-                      height: 1.2,
-                      letterSpacing: 0.3,
+              const SizedBox(height: 4),
+              Flexible(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      title,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 15,
+                        fontWeight: FontWeight.bold,
+                        height: 1.2,
+                        letterSpacing: 0.3,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
                     ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 6),
-                  Text(
-                    placeholder,
-                    style: TextStyle(
-                      color: Colors.white.withOpacity(0.95),
-                      fontSize: 11,
-                      height: 1.3,
-                      letterSpacing: 0.2,
+                    const SizedBox(height: 4),
+                    Text(
+                      placeholder,
+                      style: TextStyle(
+                        color: Colors.white.withOpacity(0.95),
+                        fontSize: 11,
+                        height: 1.3,
+                        letterSpacing: 0.2,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
                     ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ],
+                  ],
+                ),
               ),
             ],
           ),
@@ -1286,13 +1328,26 @@ class _HomeScreenContentState extends State<_HomeScreenContent> with SingleTicke
   }
 
   Widget _buildMyTaskSection(BuildContext context) {
-    
+    // Get user-specific task section title
+    String getSectionTitle() {
+      switch (widget.userType) {
+        case UserType.teacher:
+          return 'Teaching Tasks';
+        case UserType.student:
+          return 'My Tasks';
+        case UserType.parent:
+          return "Child's Tasks";
+        default:
+          return 'Tasks';
+      }
+    }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'My Task',
-          style: TextStyle(
+        Text(
+          getSectionTitle(),
+          style: const TextStyle(
             fontSize: 22,
             fontWeight: FontWeight.bold,
             letterSpacing: -0.5,
@@ -1417,12 +1472,39 @@ class _HomeScreenContentState extends State<_HomeScreenContent> with SingleTicke
   }
 
   Widget _buildRecentUpdatesSection(BuildContext context) {
+    // Get user-specific updates section info
+    String getSectionTitle() {
+      switch (widget.userType) {
+        case UserType.teacher:
+          return 'Recent Activity';
+        case UserType.student:
+          return 'Recent Updates';
+        case UserType.parent:
+          return "Child's Updates";
+        default:
+          return 'Recent Updates';
+      }
+    }
+
+    String getEmptyMessage() {
+      switch (widget.userType) {
+        case UserType.teacher:
+          return 'No recent activity from your classes.';
+        case UserType.student:
+          return 'No new assignments or announcements.';
+        case UserType.parent:
+          return 'No recent updates about your child.';
+        default:
+          return 'No recent updates at the moment.';
+      }
+    }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'Recent Updates',
-          style: TextStyle(
+        Text(
+          getSectionTitle(),
+          style: const TextStyle(
             fontSize: 22,
             fontWeight: FontWeight.bold,
             letterSpacing: -0.5,
@@ -1432,7 +1514,7 @@ class _HomeScreenContentState extends State<_HomeScreenContent> with SingleTicke
       
         _buildEmptyPlaceholderCard(
           icon: Icons.info_outline,
-          message: 'No recent updates at the moment.',
+          message: getEmptyMessage(),
           buttonText: 'Check for updates',
           onButtonPressed: () {
             print('Refresh updates for ${widget.userType}');
