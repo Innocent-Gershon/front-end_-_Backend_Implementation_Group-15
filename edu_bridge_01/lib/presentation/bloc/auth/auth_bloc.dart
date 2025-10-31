@@ -35,7 +35,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         emit(AuthAuthenticated(
           userId: user.uid,
           email: user.email ?? event.email,
-          name: userData?['name'] ?? user.displayName ?? 'User',
+          name: userData?['name'] ?? user.displayName ?? 'User', userType: '',
         ));
       } else {
         emit(const AuthError('Login failed'));
@@ -104,7 +104,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         emit(AuthAuthenticated(
           userId: user.uid,
           email: user.email ?? '',
-          name: user.displayName ?? 'Google User',
+          name: user.displayName ?? 'Google User', userType: '',
         ));
       } else {
         emit(const AuthError('Google sign in failed'));
@@ -128,7 +128,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       emit(const AuthAuthenticated(
         userId: 'newuser123',
         email: 'newuser@example.com',
-        name: 'New User',
+        name: 'New User', userType: '',
       ));
     } catch (e) {
       emit(AuthError(e.toString()));
@@ -168,7 +168,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         emit(AuthAuthenticated(
           userId: user.uid,
           email: event.email,
-          name: event.fullName,
+          name: event.fullName, userType: '',
         ));
       } else {
         emit(const AuthError('Sign up failed'));
@@ -216,7 +216,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         emit(AuthAuthenticated(
           userId: user.uid,
           email: user.email ?? '',
-          name: userData?['name'] ?? user.displayName ?? 'User',
+          name: userData?['name'] ?? user.displayName ?? 'User', userType: '',
         ));
       } else {
         emit(AuthUnauthenticated());
