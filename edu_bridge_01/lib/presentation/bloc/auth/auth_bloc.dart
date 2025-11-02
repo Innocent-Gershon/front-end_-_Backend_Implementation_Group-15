@@ -87,6 +87,12 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     
     try {
       final userCredential = await _authRepository.signInWithGoogle();
+      
+      if (userCredential == null) {
+        emit(AuthUnauthenticated()); // User cancelled
+        return;
+      }
+      
       final user = userCredential.user;
       
       if (user != null) {
@@ -110,11 +116,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         emit(const AuthError('Google sign in failed'));
       }
     } catch (e) {
-      if (e.toString().contains('cancelled')) {
-        emit(const AuthError('Google sign in was cancelled'));
-      } else {
-        emit(AuthError('Google sign in failed: ${e.toString()}'));
-      }
+      emit(AuthError('Google sign in failed: ${e.toString()}'));
     }
   }
 
