@@ -17,6 +17,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<AuthLogoutRequested>(_onLogoutRequested);
     on<AuthCheckRequested>(_onAuthCheckRequested);
     on<AuthPasswordResetRequested>(_onPasswordResetRequested);
+    on<CompleteGoogleSignInEvent>(_onCompleteGoogleSignIn);
+    on<CheckEmailVerificationEvent>(_onCheckEmailVerification);
+    on<ResendVerificationEmailEvent>(_onResendVerificationEmail);
   }
 
   void _onLoginWithEmail(LoginWithEmailEvent event, Emitter<AuthState> emit) async {
@@ -35,7 +38,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         emit(AuthAuthenticated(
           userId: user.uid,
           email: user.email ?? event.email,
-          name: userData?['name'] ?? user.displayName ?? 'User', userType: '',
+          name: userData?['name'] ?? user.displayName ?? 'User',
+          userType: userData?['userType'] ?? 'Student',
         ));
       } else {
         emit(const AuthError('Login failed'));
@@ -96,22 +100,25 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       final user = userCredential.user;
       
       if (user != null) {
-        // Save user data if it's a new user
+        // Check if user data exists
         final userData = await _authRepository.getUserData(user.uid);
+        
         if (userData == null) {
-          await _authRepository.saveUserData(
-            uid: user.uid,
+          // New user - emit special state to show role selection
+          emit(AuthGoogleSignInNeedsRole(
+            user: user,
             email: user.email ?? '',
             name: user.displayName ?? 'Google User',
-            userType: 'Student', // Default user type
-          );
+          ));
+        } else {
+          // Existing user - sign in directly
+          emit(AuthAuthenticated(
+            userId: user.uid,
+            email: user.email ?? '',
+            name: userData['name'] ?? user.displayName ?? 'Google User',
+            userType: userData['userType'] ?? 'Student',
+          ));
         }
-        
-        emit(AuthAuthenticated(
-          userId: user.uid,
-          email: user.email ?? '',
-          name: user.displayName ?? 'Google User', userType: '',
-        ));
       } else {
         emit(const AuthError('Google sign in failed'));
       }
@@ -130,7 +137,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       emit(const AuthAuthenticated(
         userId: 'newuser123',
         email: 'newuser@example.com',
-        name: 'New User', userType: '',
+        name: 'New User',
+        userType: 'Student',
       ));
     } catch (e) {
       emit(AuthError(e.toString()));
@@ -167,11 +175,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           additionalData: event.additionalData,
         );
         
-        emit(AuthAuthenticated(
-          userId: user.uid,
-          email: event.email,
-          name: event.fullName, userType: '',
-        ));
+        // Send email verification
+        await user.sendEmailVerification();
+        emit(AuthEmailVerificationSent(event.email));
       } else {
         emit(const AuthError('Sign up failed'));
       }
@@ -218,7 +224,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         emit(AuthAuthenticated(
           userId: user.uid,
           email: user.email ?? '',
-          name: userData?['name'] ?? user.displayName ?? 'User', userType: '',
+          name: userData?['name'] ?? user.displayName ?? 'User',
+          userType: userData?['userType'] ?? 'Student',
         ));
       } else {
         emit(AuthUnauthenticated());
@@ -249,6 +256,71 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       emit(AuthError(errorMessage));
     } catch (e) {
       emit(const AuthError('An unexpected error occurred'));
+    }
+  }
+
+  void _onCompleteGoogleSignIn(CompleteGoogleSignInEvent event, Emitter<AuthState> emit) async {
+    emit(AuthLoading());
+    
+    try {
+      await _authRepository.saveUserData(
+        uid: event.uid,
+        email: event.email,
+        name: event.name,
+        userType: event.userType,
+      );
+      
+      // Send email verification if not already verified
+      final user = _authRepository.currentUser;
+      if (user != null && !user.emailVerified) {
+        await user.sendEmailVerification();
+        emit(AuthEmailVerificationSent(event.email));
+      } else {
+        emit(AuthAuthenticated(
+          userId: event.uid,
+          email: event.email,
+          name: event.name,
+          userType: event.userType,
+        ));
+      }
+    } catch (e) {
+      emit(AuthError('Failed to save user data: ${e.toString()}'));
+    }
+  }
+
+  void _onCheckEmailVerification(CheckEmailVerificationEvent event, Emitter<AuthState> emit) async {
+    try {
+      final user = _authRepository.currentUser;
+      if (user != null) {
+        await user.reload();
+        final updatedUser = _authRepository.currentUser;
+        
+        if (updatedUser != null && updatedUser.emailVerified) {
+          final userData = await _authRepository.getUserData(updatedUser.uid);
+          emit(AuthAuthenticated(
+            userId: updatedUser.uid,
+            email: updatedUser.email ?? '',
+            name: userData?['name'] ?? updatedUser.displayName ?? 'User',
+            userType: userData?['userType'] ?? 'Student',
+          ));
+        } else {
+          emit(AuthError('Email not verified yet. Please check your email.'));
+        }
+      }
+    } catch (e) {
+      emit(AuthError('Failed to check verification: ${e.toString()}'));
+    }
+  }
+
+  void _onResendVerificationEmail(ResendVerificationEmailEvent event, Emitter<AuthState> emit) async {
+    try {
+      final user = _authRepository.currentUser;
+      if (user != null && !user.emailVerified) {
+        await user.sendEmailVerification();
+        emit(AuthEmailVerificationSent(event.email));
+      }
+    } catch (e) {
+      emit(AuthError('Failed to resend verification email: ${e.toString()}'));
     }
   }
 }

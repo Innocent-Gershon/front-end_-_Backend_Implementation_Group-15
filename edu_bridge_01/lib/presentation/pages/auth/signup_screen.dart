@@ -4,8 +4,10 @@ import 'dart:ui';
 import '../../bloc/auth/auth_bloc.dart';
 import '../../bloc/auth/auth_event.dart';
 import '../../bloc/auth/auth_state.dart';
+import '../../widgets/role_selection_dialog.dart';
 import '../../../core/constants/app_constants.dart';
 import 'login_screen.dart';
+import 'email_verification_screen.dart';
 
 class SignUpPage extends StatefulWidget {
   const SignUpPage({super.key});
@@ -131,6 +133,30 @@ class _SignUpPageState extends State<SignUpPage> {
             Navigator.of(context).pushNamedAndRemoveUntil(
               '/home',
               (route) => false,
+            );
+          } else if (state is AuthGoogleSignInNeedsRole) {
+            // Show role selection dialog for Google sign-in
+            showDialog(
+              context: context,
+              barrierDismissible: false,
+              builder: (context) => RoleSelectionDialog(
+                onRoleSelected: (role) {
+                  context.read<AuthBloc>().add(
+                    CompleteGoogleSignInEvent(
+                      uid: state.user.uid,
+                      email: state.email,
+                      name: state.name,
+                      userType: role,
+                    ),
+                  );
+                },
+              ),
+            );
+          } else if (state is AuthEmailVerificationSent) {
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(
+                builder: (context) => EmailVerificationScreen(email: state.email),
+              ),
             );
           }
         },
@@ -589,7 +615,12 @@ class _SignUpPageState extends State<SignUpPage> {
                             ),
                             TextButton(
                               onPressed: () {
-                                Navigator.pop(context);
+                                Navigator.pushReplacement(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => const LoginPage(),
+                                  ),
+                                );
                               },
                               child: Text(
                                 AppConstants.login,

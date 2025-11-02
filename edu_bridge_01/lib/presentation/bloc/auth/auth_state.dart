@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 abstract class AuthState extends Equatable {
   const AuthState();
@@ -43,6 +44,30 @@ class AuthPasswordResetSent extends AuthState {
   final String email;
 
   const AuthPasswordResetSent(this.email);
+
+  @override
+  List<Object> get props => [email];
+}
+
+class AuthGoogleSignInNeedsRole extends AuthState {
+  final User user;
+  final String email;
+  final String name;
+
+  const AuthGoogleSignInNeedsRole({
+    required this.user,
+    required this.email,
+    required this.name,
+  });
+
+  @override
+  List<Object> get props => [user, email, name];
+}
+
+class AuthEmailVerificationSent extends AuthState {
+  final String email;
+
+  const AuthEmailVerificationSent(this.email);
 
   @override
   List<Object> get props => [email];
