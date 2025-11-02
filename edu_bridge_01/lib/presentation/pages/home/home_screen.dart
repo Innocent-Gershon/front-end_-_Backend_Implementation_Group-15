@@ -196,22 +196,42 @@ class _HomeScreenContentState extends State<_HomeScreenContent>
     ];
   }
 
-  IconData _getBottomNavIcon(int index) {
+  IconData _getBottomNavIcon(int index, bool isSelected) {
     const navConfig = {
-      UserType.student: [Icons.home_rounded, Icons.chat_bubble_rounded, Icons.school_rounded, Icons.settings_rounded],
-      UserType.teacher: [Icons.home_rounded, Icons.chat_bubble_rounded, Icons.assignment_rounded, Icons.settings_rounded],
-      UserType.parent: [Icons.home_rounded, Icons.chat_bubble_rounded, Icons.child_care_rounded, Icons.settings_rounded],
-      UserType.guest: [Icons.home_rounded, Icons.info_rounded, Icons.login_rounded, Icons.settings_rounded],
+      UserType.student: [
+        [Icons.home_rounded, Icons.home_outlined],
+        [Icons.chat_bubble_rounded, Icons.chat_bubble_outline],
+        [Icons.school_rounded, Icons.school_outlined],
+        [Icons.settings_rounded, Icons.settings_outlined]
+      ],
+      UserType.teacher: [
+        [Icons.home_rounded, Icons.home_outlined],
+        [Icons.chat_bubble_rounded, Icons.chat_bubble_outline],
+        [Icons.school_rounded, Icons.school_outlined],
+        [Icons.settings_rounded, Icons.settings_outlined]
+      ],
+      UserType.parent: [
+        [Icons.home_rounded, Icons.home_outlined],
+        [Icons.chat_bubble_rounded, Icons.chat_bubble_outline],
+        [Icons.school_rounded, Icons.school_outlined],
+        [Icons.settings_rounded, Icons.settings_outlined]
+      ],
+      UserType.guest: [
+        [Icons.home_rounded, Icons.home_outlined],
+        [Icons.chat_bubble_rounded, Icons.chat_bubble_outline],
+        [Icons.school_rounded, Icons.school_outlined],
+        [Icons.settings_rounded, Icons.settings_outlined]
+      ],
     };
-    return navConfig[widget.userType]?[index] ?? Icons.error;
+    return navConfig[widget.userType]?[index]?[isSelected ? 0 : 1] ?? Icons.error;
   }
 
   String _getBottomNavLabel(int index) {
     const navLabels = {
       UserType.student: ['Home', 'Chats', 'Classes', 'Settings'],
-      UserType.teacher: ['Home', 'Chats', 'Assignments', 'Settings'],
-      UserType.parent: ['Home', 'Chats', 'Children', 'Settings'],
-      UserType.guest: ['Home', 'About', 'Sign In', 'Settings'],
+      UserType.teacher: ['Home', 'Chats', 'Classes', 'Settings'],
+      UserType.parent: ['Home', 'Chats', 'Classes', 'Settings'],
+      UserType.guest: ['Home', 'Chats', 'Classes', 'Settings'],
     };
     return navLabels[widget.userType]?[index] ?? 'Error';
   }
@@ -367,15 +387,15 @@ class _HomeScreenContentState extends State<_HomeScreenContent>
           color: Colors.white,
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
-              blurRadius: 10,
-              offset: const Offset(0, -2),
+              color: Colors.black.withOpacity(0.06),
+              blurRadius: 12,
+              offset: const Offset(0, -3),
             ),
           ],
         ),
         child: SafeArea(
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: List.generate(4, (index) {
@@ -390,17 +410,17 @@ class _HomeScreenContentState extends State<_HomeScreenContent>
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Icon(
-                            _getBottomNavIcon(index),
-                            color: isSelected ? _getPrimaryColor() : Colors.grey[400],
-                            size: 26,
+                            _getBottomNavIcon(index, isSelected),
+                            color: isSelected ? _getPrimaryColor() : Colors.grey[700],
+                            size: 28,
                           ),
-                          const SizedBox(height: 4),
+                          const SizedBox(height: 6),
                           Text(
                             _getBottomNavLabel(index),
                             style: TextStyle(
-                              fontSize: 12,
-                              color: isSelected ? Colors.black87 : Colors.grey[500],
-                              fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                              fontSize: 13,
+                              color: isSelected ? Colors.black87 : Colors.grey[700],
+                              fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
                             ),
                           ),
                         ],
