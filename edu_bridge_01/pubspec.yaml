@@ -31,8 +31,11 @@ dependencies:
   flutter:
     sdk: flutter
 
-  # UI & Icons
+  google_nav_bar: ^5.0.6
+  flutter_staggered_animations: ^1.1.1
+  google_fonts: ^6.0.0
   cupertino_icons: ^1.0.8
+
   
   # Firebase
   firebase_core: ^3.15.2
@@ -51,7 +54,7 @@ dependencies:
   # UI Enhancements
   animate_do: ^3.3.4
   lottie: ^3.1.2
-  google_fonts: ^6.2.1
+  # google_fonts: ^6.2.1
 
 dev_dependencies:
   flutter_test:

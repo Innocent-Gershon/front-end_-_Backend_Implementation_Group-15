@@ -80,7 +80,6 @@ class _HomeScreenContentState extends State<_HomeScreenContent>
     super.dispose();
   }
 
-  // User-specific theme colors
   Color _getPrimaryColor() {
     switch (widget.userType) {
       case UserType.student:
@@ -94,428 +93,107 @@ class _HomeScreenContentState extends State<_HomeScreenContent>
     }
   }
 
-  List<Map<String, dynamic>> _getAllCategories() {
-    if (widget.userType == UserType.teacher) {
+  List<Map<String, dynamic>> _getCategoryData() {
+    if (widget.userType == UserType.student) {
       return [
-        {'title': 'Create Assignments', 'placeholder': 'Create new assignments', 'color': const Color(0xFF5B7FFF)},
-        {'title': 'Mark Attendance', 'placeholder': 'Track student attendance', 'color': const Color(0xFF5B7FFF)},
-        {'title': 'Grade Students', 'placeholder': 'Enter student grades', 'color': const Color(0xFFFF6B6B)},
-        {'title': 'Manage Classes', 'placeholder': 'Schedule & organize classes', 'color': const Color(0xFF9C7FFF)},
-        {'title': 'Student Reports', 'placeholder': 'Generate progress reports', 'color': const Color(0xFF4ECDC4)},
-        {'title': 'Announcements', 'placeholder': 'Post updates & notices', 'color': const Color(0xFF00C48C)},
+        {
+          'title': 'Assignment',
+          'subtitle': 'To Review',
+          'detail': 'Due Today: 3',
+          'progress': 0.6,
+          'progressText': '60%',
+          'color': const Color(0xFF5B7FFF),
+        },
+        {
+          'title': 'Attendance',
+          'subtitle': 'Track Now',
+          'detail': '87% This Week',
+          'progress': 0.75,
+          'progressText': '75%',
+          'color': const Color(0xFF5B7FFF),
+        },
       ];
-    } else if (widget.userType == UserType.student) {
+    } else if (widget.userType == UserType.teacher) {
       return [
-        {'title': 'My Assignments', 'placeholder': 'View & submit assignments', 'color': const Color(0xFF5B7FFF)},
-        {'title': 'My Attendance', 'placeholder': 'View attendance records', 'color': const Color(0xFF5B7FFF)},
-        {'title': 'My Grades', 'placeholder': 'Check your grades', 'color': const Color(0xFFFF6B6B)},
-        {'title': 'My Classes', 'placeholder': 'View class schedule', 'color': const Color(0xFF9C7FFF)},
-        {'title': 'Study Resources', 'placeholder': 'Access learning materials', 'color': const Color(0xFF4ECDC4)},
-        {'title': 'Announcements', 'placeholder': 'Read school updates', 'color': const Color(0xFF00C48C)},
+        {
+          'title': 'Classes',
+          'subtitle': 'Today',
+          'detail': '5 Classes',
+          'progress': 0.8,
+          'progressText': '80%',
+          'color': const Color(0xFF2D9CDB),
+        },
+        {
+          'title': 'Grading',
+          'subtitle': 'Pending',
+          'detail': '12 Assignments',
+          'progress': 0.45,
+          'progressText': '45%',
+          'color': const Color(0xFFFF6B6B),
+        },
       ];
     } else if (widget.userType == UserType.parent) {
       return [
-        {'title': "Child's Assignments", 'placeholder': 'Track assignment progress', 'color': const Color(0xFF5B7FFF)},
-        {'title': "Child's Attendance", 'placeholder': 'Monitor attendance records', 'color': const Color(0xFF5B7FFF)},
-        {'title': "Child's Grades", 'placeholder': 'View academic performance', 'color': const Color(0xFFFF6B6B)},
-        {'title': 'Class Schedule', 'placeholder': "View child's timetable", 'color': const Color(0xFF9C7FFF)},
-        {'title': 'Teacher Communication', 'placeholder': 'Messages from teachers', 'color': const Color(0xFF4ECDC4)},
-        {'title': 'School Announcements', 'placeholder': 'Important updates', 'color': const Color(0xFF00C48C)},
+        {
+          'title': 'Assignments',
+          'subtitle': 'Track Progress',
+          'detail': '3 Pending',
+          'progress': 0.65,
+          'progressText': '65%',
+          'color': const Color(0xFFEB5757),
+        },
+        {
+          'title': 'Attendance',
+          'subtitle': 'This Week',
+          'detail': '95% Present',
+          'progress': 0.95,
+          'progressText': '95%',
+          'color': const Color(0xFF27AE60),
+        },
       ];
     } else {
       return [
-        {'title': 'Explore Features', 'placeholder': 'Discover EduBridge', 'color': const Color(0xFF5B7FFF)},
-        {'title': 'Sign Up', 'placeholder': 'Create account', 'color': const Color(0xFF00C48C)},
-        {'title': 'About Us', 'placeholder': 'Learn more', 'color': const Color(0xFF9C7FFF)},
+        {
+          'title': 'Explore',
+          'subtitle': 'Features',
+          'detail': 'Get Started',
+          'progress': 0.0,
+          'progressText': '0%',
+          'color': const Color(0xFF5B7FFF),
+        },
+        {
+          'title': 'Sign Up',
+          'subtitle': 'Join Now',
+          'detail': 'Create Account',
+          'progress': 0.0,
+          'progressText': '0%',
+          'color': const Color(0xFF27AE60),
+        },
       ];
     }
   }
 
-  void _showAllCategoriesModal(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
-      ),
-      builder: (context) => DraggableScrollableSheet(
-        initialChildSize: 0.9,
-        minChildSize: 0.5,
-        maxChildSize: 0.95,
-        builder: (_, controller) => Container(
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
-          ),
-          child: Column(
-            children: [
-              const SizedBox(height: 12),
-              Container(
-                width: 50,
-                height: 5,
-                decoration: BoxDecoration(
-                  color: Colors.grey[300],
-                  borderRadius: BorderRadius.circular(10),
-                ),
-              ),
-              const SizedBox(height: 20),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text(
-                      'All Categories',
-                      style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: -0.5,
-                      ),
-                    ),
-                    IconButton(
-                      onPressed: () => Navigator.pop(context),
-                      icon: const Icon(Icons.close),
-                      style: IconButton.styleFrom(
-                        backgroundColor: Colors.grey[200],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 20),
-              Expanded(
-                child: GridView.builder(
-                  controller: controller,
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    childAspectRatio: 1.1,
-                    crossAxisSpacing: 16,
-                    mainAxisSpacing: 16,
-                  ),
-                  itemCount: _getAllCategories().length,
-                  itemBuilder: (context, index) {
-                    final category = _getAllCategories()[index];
-                    return _buildCategoryCard(
-                      title: category['title']!,
-                      placeholder: category['placeholder']!,
-                      color: category['color'] as Color,
-                    );
-                  },
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  void _showAddTaskModal(BuildContext context) {
-    final taskNameController = TextEditingController();
-    final descriptionController = TextEditingController();
-    String selectedPriority = 'Medium';
-    DateTime? selectedDate;
-    TimeOfDay? selectedTime;
-
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) => StatefulBuilder(
-        builder: (context, setState) {
-          return DraggableScrollableSheet(
-            initialChildSize: 0.95,
-            minChildSize: 0.5,
-            maxChildSize: 0.95,
-            builder: (_, controller) => Container(
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
-              ),
-              child: Column(
-                children: [
-                  const SizedBox(height: 12),
-                  Container(
-                    width: 50,
-                    height: 5,
-                    decoration: BoxDecoration(
-                      color: Colors.grey[300],
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 24),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const Text(
-                          'Create Task',
-                          style: TextStyle(
-                            fontSize: 28,
-                            fontWeight: FontWeight.w600,
-                            letterSpacing: -0.5,
-                          ),
-                        ),
-                        IconButton(
-                          onPressed: () => Navigator.pop(context),
-                          icon: const Icon(Icons.close, size: 24),
-                          style: IconButton.styleFrom(
-                            backgroundColor: Colors.grey[100],
-                            shape: const CircleBorder(),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Expanded(
-                    child: SingleChildScrollView(
-                      controller: controller,
-                      padding: const EdgeInsets.all(24),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          _buildInputLabel('Task Name'),
-                          const SizedBox(height: 8),
-                          _buildTextField(taskNameController, 'Enter task name'),
-                          const SizedBox(height: 24),
-                          
-                          _buildInputLabel('Description'),
-                          const SizedBox(height: 8),
-                          _buildTextField(descriptionController, 'Add details (optional)', maxLines: 3),
-                          const SizedBox(height: 24),
-                          
-                          _buildInputLabel('Priority'),
-                          const SizedBox(height: 8),
-                          Row(
-                            children: [
-                              Expanded(
-                                child: _buildPriorityChip(
-                                  'Low',
-                                  const Color(0xFF27AE60),
-                                  selectedPriority == 'Low',
-                                  () => setState(() => selectedPriority = 'Low'),
-                                ),
-                              ),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: _buildPriorityChip(
-                                  'Medium',
-                                  const Color(0xFFF2994A),
-                                  selectedPriority == 'Medium',
-                                  () => setState(() => selectedPriority = 'Medium'),
-                                ),
-                              ),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: _buildPriorityChip(
-                                  'High',
-                                  const Color(0xFFEB5757),
-                                  selectedPriority == 'High',
-                                  () => setState(() => selectedPriority = 'High'),
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 24),
-                          
-                          _buildInputLabel('Due Date'),
-                          const SizedBox(height: 8),
-                          _buildDateTimeSelector(
-                            icon: Icons.calendar_today,
-                            text: selectedDate != null
-                                ? '${selectedDate!.day}/${selectedDate!.month}/${selectedDate!.year}'
-                                : 'Select date',
-                            onTap: () async {
-                              final date = await showDatePicker(
-                                context: context,
-                                initialDate: DateTime.now(),
-                                firstDate: DateTime.now(),
-                                lastDate: DateTime(2100),
-                              );
-                              if (date != null) {
-                                setState(() => selectedDate = date);
-                              }
-                            },
-                          ),
-                          const SizedBox(height: 24),
-                          
-                          _buildInputLabel('Time'),
-                          const SizedBox(height: 8),
-                          _buildDateTimeSelector(
-                            icon: Icons.access_time,
-                            text: selectedTime != null
-                                ? '${selectedTime!.hour}:${selectedTime!.minute.toString().padLeft(2, '0')}'
-                                : 'Select time',
-                            onTap: () async {
-                              final time = await showTimePicker(
-                                context: context,
-                                initialTime: TimeOfDay.now(),
-                              );
-                              if (time != null) {
-                                setState(() => selectedTime = time);
-                              }
-                            },
-                          ),
-                          const SizedBox(height: 32),
-                          
-                          SizedBox(
-                            width: double.infinity,
-                            height: 56,
-                            child: ElevatedButton(
-                              onPressed: () {
-                                if (taskNameController.text.isEmpty) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: const Text('Please enter a task name'),
-                                      backgroundColor: Colors.red[400],
-                                      behavior: SnackBarBehavior.floating,
-                                    ),
-                                  );
-                                  return;
-                                }
-                                Navigator.pop(context);
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text('Task created successfully'),
-                                    backgroundColor: Color(0xFF27AE60),
-                                    behavior: SnackBarBehavior.floating,
-                                  ),
-                                );
-                              },
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: _getPrimaryColor(),
-                                foregroundColor: Colors.white,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                elevation: 0,
-                              ),
-                              child: const Text(
-                                'Create Task',
-                                style: TextStyle(
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 16,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          );
-        },
-      ),
-    );
-  }
-
-  Widget _buildInputLabel(String label) {
-    return Text(
-      label,
-      style: const TextStyle(
-        fontSize: 14,
-        fontWeight: FontWeight.w600,
-        color: Colors.black87,
-      ),
-    );
-  }
-
-  Widget _buildTextField(TextEditingController controller, String hint, {int maxLines = 1}) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.grey[50],
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey[200]!),
-      ),
-      child: TextField(
-        controller: controller,
-        maxLines: maxLines,
-        decoration: InputDecoration(
-          hintText: hint,
-          hintStyle: TextStyle(color: Colors.grey[400]),
-          border: InputBorder.none,
-          contentPadding: const EdgeInsets.all(16),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildDateTimeSelector({
-    required IconData icon,
-    required String text,
-    required VoidCallback onTap,
-  }) {
-    return InkWell(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Colors.grey[50],
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: Colors.grey[200]!),
-        ),
-        child: Row(
-          children: [
-            Icon(icon, color: Colors.grey[600], size: 20),
-            const SizedBox(width: 12),
-            Text(
-              text,
-              style: TextStyle(
-                color: Colors.black87,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildPriorityChip(String label, Color color, bool isSelected, VoidCallback onTap) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 12),
-        decoration: BoxDecoration(
-          color: isSelected ? color : Colors.grey[50],
-          borderRadius: BorderRadius.circular(10),
-          border: Border.all(
-            color: isSelected ? color : Colors.grey[300]!,
-            width: 1.5,
-          ),
-        ),
-        child: Center(
-          child: Text(
-            label,
-            style: TextStyle(
-              color: isSelected ? Colors.white : Colors.black87,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  IconData _getCategoryIcon(String title) {
-    if (title.contains('Assignment')) return Icons.assignment_outlined;
-    if (title.contains('Attendance')) return Icons.how_to_reg_outlined;
-    if (title.contains('Classes') || title.contains('Schedule')) return Icons.class_outlined;
-    if (title.contains('Grade')) return Icons.grade_outlined;
-    if (title.contains('Report')) return Icons.assessment_outlined;
-    if (title.contains('Resources') || title.contains('Study')) return Icons.library_books_outlined;
-    if (title.contains('Explore')) return Icons.explore_outlined;
-    if (title.contains('Sign Up')) return Icons.person_add_outlined;
-    if (title.contains('About')) return Icons.info_outline;
-    if (title.contains('Communication')) return Icons.chat_bubble_outline;
-    if (title.contains('Announcements')) return Icons.campaign_outlined;
-    return Icons.category_outlined;
+  List<Map<String, dynamic>> _getTaskData() {
+    return [
+      {
+        'title': 'Design task management dashboard',
+        'description': 'Create wireframes and mockups for the main dashboard.',
+        'priority': 'High',
+        'priorityColor': const Color(0xFFF59E0B),
+        'tags': ['UI', 'Design'],
+        'status': 'In Progress',
+        'dueDate': '10 October',
+      },
+      {
+        'title': 'Design task management dashboard',
+        'description': 'Create wireframes and mockups for the main dashboard.',
+        'priority': 'Medium',
+        'priorityColor': const Color(0xFF3B82F6),
+        'tags': ['UI', 'Design'],
+        'status': 'In Progress',
+        'dueDate': '20 October',
+      },
+    ];
   }
 
   IconData _getBottomNavIcon(int index) {
@@ -547,34 +225,40 @@ class _HomeScreenContentState extends State<_HomeScreenContent>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFFAFAFA),
+      backgroundColor: const Color(0xFFF8F9FA),
       body: SafeArea(
         child: CustomScrollView(
           slivers: [
             // Header
             SliverToBoxAdapter(
               child: Container(
-                padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
+                padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
                 color: Colors.white,
                 child: Row(
                   children: [
                     Container(
-                      width: 56,
-                      height: 56,
+                      width: 60,
+                      height: 60,
                       decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [_getPrimaryColor(), _getPrimaryColor().withOpacity(0.7)],
-                        ),
+                        color: const Color(0xFFE8F0FF),
                         shape: BoxShape.circle,
                       ),
-                      child: Center(
-                        child: Text(
-                          widget.userName.isNotEmpty ? widget.userName[0].toUpperCase() : 'U',
-                          style: const TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                          ),
+                      child: ClipOval(
+                        child: Image.asset(
+                          'assets/images/avatar.png',
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) {
+                            return Center(
+                              child: Text(
+                                widget.userName.isNotEmpty ? widget.userName[0].toUpperCase() : 'U',
+                                style: TextStyle(
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.w600,
+                                  color: _getPrimaryColor(),
+                                ),
+                              ),
+                            );
+                          },
                         ),
                       ),
                     ),
@@ -586,17 +270,18 @@ class _HomeScreenContentState extends State<_HomeScreenContent>
                           Text(
                             'Welcome Back!',
                             style: TextStyle(
-                              fontSize: 13,
-                              color: Colors.grey[600],
+                              fontSize: 14,
+                              color: Colors.grey[800],
+                              fontWeight: FontWeight.w400,
                             ),
                           ),
                           const SizedBox(height: 2),
                           Text(
                             widget.userName,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black87,
+                              fontWeight: FontWeight.w600,
+                              color: _getPrimaryColor(),
                             ),
                             overflow: TextOverflow.ellipsis,
                           ),
@@ -604,41 +289,41 @@ class _HomeScreenContentState extends State<_HomeScreenContent>
                       ),
                     ),
                     Container(
-                      width: 44,
-                      height: 44,
+                      width: 48,
+                      height: 48,
                       decoration: BoxDecoration(
-                        color: Colors.grey[100],
+                        color: const Color(0xFFF0F4FF),
                         shape: BoxShape.circle,
                       ),
                       child: IconButton(
-                        icon: Icon(Icons.search, color: Colors.grey[700], size: 22),
+                        icon: Icon(Icons.search, color: Colors.grey[700], size: 24),
                         onPressed: () {},
                       ),
                     ),
-                    const SizedBox(width: 8),
+                    const SizedBox(width: 12),
                     Container(
-                      width: 44,
-                      height: 44,
+                      width: 48,
+                      height: 48,
                       decoration: BoxDecoration(
-                        color: Colors.grey[100],
+                        color: const Color(0xFFF0F4FF),
                         shape: BoxShape.circle,
                       ),
                       child: Stack(
                         children: [
                           Center(
                             child: IconButton(
-                              icon: Icon(Icons.notifications_outlined, color: Colors.grey[700], size: 22),
+                              icon: Icon(Icons.notifications_outlined, color: Colors.grey[700], size: 24),
                               onPressed: () {},
                             ),
                           ),
                           Positioned(
-                            right: 10,
-                            top: 10,
+                            right: 12,
+                            top: 12,
                             child: Container(
                               width: 8,
                               height: 8,
                               decoration: const BoxDecoration(
-                                color: Colors.red,
+                                color: Color(0xFFFF4757),
                                 shape: BoxShape.circle,
                               ),
                             ),
@@ -648,6 +333,13 @@ class _HomeScreenContentState extends State<_HomeScreenContent>
                     ),
                   ],
                 ),
+              ),
+            ),
+            
+            SliverToBoxAdapter(
+              child: Container(
+                height: 1,
+                color: Colors.grey[200],
               ),
             ),
             
@@ -725,39 +417,38 @@ class _HomeScreenContentState extends State<_HomeScreenContent>
   }
 
   Widget _buildCategoriesSection(BuildContext context) {
-    final categories = _getAllCategories().take(2).toList();
+    final categories = _getCategoryData();
     
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsets.fromLTRB(20, 20, 20, 16),
+          padding: const EdgeInsets.fromLTRB(20, 24, 20, 16),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               const Text(
                 'Categories',
                 style: TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
+                  fontSize: 24,
+                  fontWeight: FontWeight.w700,
                   letterSpacing: -0.5,
+                  color: Colors.black,
                 ),
               ),
-              TextButton(
-                onPressed: () => _showAllCategoriesModal(context),
-                child: Text(
-                  'View All',
-                  style: TextStyle(
-                    color: Colors.grey[600],
-                    fontSize: 14,
-                  ),
+              Text(
+                'View All',
+                style: TextStyle(
+                  color: Colors.grey[500],
+                  fontSize: 15,
+                  fontWeight: FontWeight.w500,
                 ),
               ),
             ],
           ),
         ),
         SizedBox(
-          height: 160,
+          height: 180,
           child: ListView.builder(
             padding: const EdgeInsets.symmetric(horizontal: 20),
             scrollDirection: Axis.horizontal,
@@ -768,7 +459,10 @@ class _HomeScreenContentState extends State<_HomeScreenContent>
                 padding: EdgeInsets.only(right: index < categories.length - 1 ? 16 : 0),
                 child: _buildCategoryCard(
                   title: category['title']!,
-                  placeholder: category['placeholder']!,
+                  subtitle: category['subtitle']!,
+                  detail: category['detail']!,
+                  progress: category['progress']!,
+                  progressText: category['progressText']!,
                   color: category['color'] as Color,
                 ),
               );
@@ -781,24 +475,27 @@ class _HomeScreenContentState extends State<_HomeScreenContent>
 
   Widget _buildCategoryCard({
     required String title,
-    required String placeholder,
+    required String subtitle,
+    required String detail,
+    required double progress,
+    required String progressText,
     required Color color,
   }) {
     return Container(
-      width: 180,
-      padding: const EdgeInsets.all(16),
+      width: 280,
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [color, color.withOpacity(0.8)],
+          colors: [color, color.withOpacity(0.85)],
         ),
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: color.withOpacity(0.3),
-            blurRadius: 12,
-            offset: const Offset(0, 6),
+            color: color.withOpacity(0.25),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
@@ -809,40 +506,46 @@ class _HomeScreenContentState extends State<_HomeScreenContent>
             title,
             style: const TextStyle(
               color: Colors.white,
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
+              fontSize: 20,
+              fontWeight: FontWeight.w700,
               height: 1.2,
             ),
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 4),
           Text(
-            placeholder,
+            subtitle,
             style: TextStyle(
               color: Colors.white.withOpacity(0.9),
-              fontSize: 13,
-            ),
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-          ),
-          const Spacer(),
-          const Text(
-            '60%',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
+              fontSize: 15,
+              fontWeight: FontWeight.w400,
             ),
           ),
           const SizedBox(height: 6),
+          Text(
+            detail,
+            style: TextStyle(
+              color: Colors.white.withOpacity(0.95),
+              fontSize: 15,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          const Spacer(),
+          Text(
+            progressText,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 22,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+          const SizedBox(height: 8),
           ClipRRect(
-            borderRadius: BorderRadius.circular(4),
+            borderRadius: BorderRadius.circular(10),
             child: LinearProgressIndicator(
-              value: 0.6,
+              value: progress,
               backgroundColor: Colors.white.withOpacity(0.3),
               valueColor: const AlwaysStoppedAnimation<Color>(Colors.white),
-              minHeight: 6,
+              minHeight: 8,
             ),
           ),
         ],
@@ -851,40 +554,36 @@ class _HomeScreenContentState extends State<_HomeScreenContent>
   }
 
   Widget _buildMyTaskSection(BuildContext context) {
+    final tasks = _getTaskData();
+    
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Padding(
-          padding: EdgeInsets.fromLTRB(20, 24, 20, 16),
+          padding: EdgeInsets.fromLTRB(20, 28, 20, 16),
           child: Text(
             'My Task',
             style: TextStyle(
-              fontSize: 22,
-              fontWeight: FontWeight.bold,
+              fontSize: 24,
+              fontWeight: FontWeight.w700,
               letterSpacing: -0.5,
+              color: Colors.black,
             ),
           ),
         ),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20),
           child: Container(
-            height: 48,
+            height: 50,
             decoration: BoxDecoration(
-              color: Colors.grey[200],
+              color: const Color(0xFFF3F4F6),
               borderRadius: BorderRadius.circular(12),
             ),
             child: TabBar(
               controller: _tabController,
               indicator: BoxDecoration(
                 color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
-                    blurRadius: 4,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
+                borderRadius: BorderRadius.circular(10),
               ),
               labelColor: Colors.black87,
               unselectedLabelColor: Colors.grey[600],
@@ -893,6 +592,7 @@ class _HomeScreenContentState extends State<_HomeScreenContent>
                 fontSize: 15,
               ),
               dividerColor: Colors.transparent,
+              indicatorSize: TabBarIndicatorSize.tab,
               tabs: const [
                 Tab(text: 'Active'),
                 Tab(text: 'Completed'),
@@ -900,75 +600,141 @@ class _HomeScreenContentState extends State<_HomeScreenContent>
             ),
           ),
         ),
-        const SizedBox(height: 16),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20),
-          child: _buildEmptyTaskCard(context),
-        ),
+        const SizedBox(height: 20),
+        ...tasks.map((task) => Padding(
+          padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
+          child: _buildTaskCard(
+            title: task['title']!,
+            description: task['description']!,
+            priority: task['priority']!,
+            priorityColor: task['priorityColor'] as Color,
+            tags: List<String>.from(task['tags']),
+            status: task['status']!,
+            dueDate: task['dueDate']!,
+          ),
+        )),
       ],
     );
   }
 
-  Widget _buildEmptyTaskCard(BuildContext context) {
+  Widget _buildTaskCard({
+    required String title,
+    required String description,
+    required String priority,
+    required Color priorityColor,
+    required List<String> tags,
+    required String status,
+    required String dueDate,
+  }) {
     return Container(
-      padding: const EdgeInsets.all(32),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.grey[200]!),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: Colors.black.withOpacity(0.03),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
         ],
       ),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            width: 80,
-            height: 80,
-            decoration: BoxDecoration(
-              color: Colors.grey[100],
-              shape: BoxShape.circle,
-            ),
-            child: Icon(
-              Icons.assignment_outlined,
-              size: 40,
-              color: Colors.grey[400],
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 17,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.black87,
+                    height: 1.3,
+                  ),
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(
+                  color: priorityColor.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  priority,
+                  style: TextStyle(
+                    color: priorityColor,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            description,
+            style: TextStyle(
+              fontSize: 14,
+              color: Colors.grey[600],
+              height: 1.4,
             ),
           ),
           const SizedBox(height: 16),
-          Text(
-            'No active tasks found.',
-            style: TextStyle(
-              fontSize: 16,
-              color: Colors.grey[700],
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-          const SizedBox(height: 20),
-          SizedBox(
-            width: double.infinity,
-            height: 48,
-            child: ElevatedButton(
-              onPressed: () => _showAddTaskModal(context),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: _getPrimaryColor(),
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                elevation: 0,
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: tags.map((tag) => Container(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+              decoration: BoxDecoration(
+                color: Colors.grey[200],
+                borderRadius: BorderRadius.circular(8),
               ),
-              child: const Text(
-                'Add a new task',
+              child: Text(
+                tag,
                 style: TextStyle(
-                  fontWeight: FontWeight.w600,
-                  fontSize: 15,
+                  fontSize: 13,
+                  color: Colors.grey[700],
+                  fontWeight: FontWeight.w500,
                 ),
               ),
-            ),
+            )).toList(),
+          ),
+          const SizedBox(height: 16),
+          Container(
+            height: 1,
+            color: Colors.grey[200],
+          ),
+          const SizedBox(height: 12),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: [
+                  Icon(Icons.access_time, size: 16, color: Colors.grey[600]),
+                  const SizedBox(width: 6),
+                  Text(
+                    status,
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: Colors.grey[600],
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
+              Text(
+                'Due date: $dueDate',
+                style: TextStyle(
+                  fontSize: 13,
+                  color: Colors.grey[600],
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
           ),
         ],
       ),
@@ -980,65 +746,14 @@ class _HomeScreenContentState extends State<_HomeScreenContent>
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Padding(
-          padding: EdgeInsets.fromLTRB(20, 24, 20, 16),
+          padding: EdgeInsets.fromLTRB(20, 28, 20, 16),
           child: Text(
             'Recent Updates',
             style: TextStyle(
-              fontSize: 22,
-              fontWeight: FontWeight.bold,
+              fontSize: 24,
+              fontWeight: FontWeight.w700,
               letterSpacing: -0.5,
-            ),
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20),
-          child: Container(
-            padding: const EdgeInsets.all(32),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(20),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.04),
-                  blurRadius: 8,
-                  offset: const Offset(0, 2),
-                ),
-              ],
-            ),
-            child: Column(
-              children: [
-                Container(
-                  width: 80,
-                  height: 80,
-                  decoration: BoxDecoration(
-                    color: Colors.grey[100],
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(
-                    Icons.notifications_outlined,
-                    size: 40,
-                    color: Colors.grey[400],
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  'No recent updates',
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.grey[700],
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'Check back later for new notifications',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey[500],
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-              ],
+              color: Colors.black,
             ),
           ),
         ),
