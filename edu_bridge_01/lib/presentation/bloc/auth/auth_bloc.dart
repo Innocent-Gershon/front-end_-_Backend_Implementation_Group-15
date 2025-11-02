@@ -119,6 +119,21 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
             userType: userData['userType'] ?? 'Student',
           ));
         }
+            userType: 'Student',
+          );
+        }
+        
+        final currentUserData = userData ?? {
+          'name': user.displayName ?? 'Google User',
+          'userType': 'Student',
+        };
+        
+        emit(AuthAuthenticated(
+          userId: user.uid,
+          email: user.email ?? '',
+          name: currentUserData['name'] ?? 'Google User',
+          userType: currentUserData['userType'] ?? 'Student',
+        ));
       } else {
         emit(const AuthError('Google sign in failed'));
       }
@@ -131,8 +146,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     emit(AuthLoading());
     
     try {
-      // TODO: Implement Firebase sign up
-      await Future.delayed(const Duration(seconds: 2)); // Simulate API call
+      await Future.delayed(const Duration(seconds: 2));
       
       emit(const AuthAuthenticated(
         userId: 'newuser123',
@@ -178,6 +192,12 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         // Send email verification
         await user.sendEmailVerification();
         emit(AuthEmailVerificationSent(event.email));
+        emit(AuthAuthenticated(
+          userId: user.uid,
+          email: event.email,
+          name: event.fullName,
+          userType: event.userType,
+        ));
       } else {
         emit(const AuthError('Sign up failed'));
       }

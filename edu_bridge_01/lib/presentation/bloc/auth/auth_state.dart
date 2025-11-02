@@ -17,12 +17,14 @@ class AuthAuthenticated extends AuthState {
   final String email;
   final String name;
   final String userType; // ✅ Added userType here
+  final String userType;
 
   const AuthAuthenticated({
     required this.userId,
     required this.email,
     required this.name,
     required this.userType, // ✅ Added to constructor
+    required this.userType,
   });
 
   @override

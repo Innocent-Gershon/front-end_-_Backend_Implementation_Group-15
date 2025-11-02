@@ -155,6 +155,12 @@ class _SignUpPageState extends State<SignUpPage> {
                 builder: (context) => EmailVerificationScreen(email: state.email),
               ),
             );
+            Future.microtask(() {
+              Navigator.of(context).pushNamedAndRemoveUntil(
+                '/home',
+                (route) => false,
+              );
+            });
           }
         },
         builder: (context, state) {
