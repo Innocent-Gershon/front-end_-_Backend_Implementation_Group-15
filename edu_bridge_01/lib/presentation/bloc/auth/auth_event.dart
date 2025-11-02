@@ -70,3 +70,31 @@ class AuthPasswordResetRequested extends AuthEvent {
   @override
   List<Object> get props => [email];
 }
+
+class CompleteGoogleSignInEvent extends AuthEvent {
+  final String uid;
+  final String email;
+  final String name;
+  final String userType;
+
+  const CompleteGoogleSignInEvent({
+    required this.uid,
+    required this.email,
+    required this.name,
+    required this.userType,
+  });
+
+  @override
+  List<Object> get props => [uid, email, name, userType];
+}
+
+class CheckEmailVerificationEvent extends AuthEvent {}
+
+class ResendVerificationEmailEvent extends AuthEvent {
+  final String email;
+
+  const ResendVerificationEmailEvent(this.email);
+
+  @override
+  List<Object> get props => [email];
+}

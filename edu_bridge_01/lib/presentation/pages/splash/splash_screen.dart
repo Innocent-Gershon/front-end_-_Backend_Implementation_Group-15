@@ -7,7 +7,7 @@ import '../../../core/widgets/animated_next_button.dart';
 import '../../bloc/splash/splash_bloc.dart';
 import '../../bloc/splash/splash_event.dart';
 import '../../bloc/splash/splash_state.dart';
-import '../auth/login_screen.dart';
+// import '../auth/login_screen.dart';
 import '../auth/signup_screen.dart';
 import 'animated_skip_button.dart';
 

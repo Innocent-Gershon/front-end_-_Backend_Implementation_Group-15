@@ -12,6 +12,8 @@ import 'presentation/bloc/auth/auth_event.dart';
 import 'presentation/pages/splash/splash_screen.dart';
 import 'presentation/pages/home/home_screen.dart';
 import 'presentation/pages/auth/login_screen.dart';
+import 'presentation/pages/auth/email_verification_screen.dart';
+import 'test_google_signin.dart';
 import 'presentation/pages/auth/signup_screen.dart';
 
 void main() async {
@@ -56,6 +58,8 @@ class EduBridgeApp extends StatelessWidget {
         routes: {
           '/home': (context) => const HomeScreen(),
           '/login': (context) => const LoginPage(),
+          '/test-google': (context) => const GoogleSignInTest(),
+          '/email-verification': (context) => const EmailVerificationScreen(email: ''),
           '/signup': (context) => const SignUpPage(),
         },
       ),

@@ -4,9 +4,11 @@ import 'dart:ui';
 import '../../bloc/auth/auth_bloc.dart';
 import '../../bloc/auth/auth_event.dart';
 import '../../bloc/auth/auth_state.dart';
+import '../../widgets/role_selection_dialog.dart';
 import '../../../core/constants/app_constants.dart';
 import 'signup_screen.dart';
 import 'forgot_password_screen.dart';
+import 'email_verification_screen.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -37,6 +39,11 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => Navigator.pushNamed(context, '/test-google'),
+        child: const Icon(Icons.bug_report),
+        tooltip: 'Test Google Sign-In',
+      ),
       body: BlocConsumer<AuthBloc, AuthState>(
         listener: (context, state) {
           if (state is AuthError) {
@@ -97,6 +104,34 @@ class _LoginPageState extends State<LoginPage> {
               });
             }
           } else if (state is AuthAuthenticated) {
+            Navigator.of(context).pushNamedAndRemoveUntil(
+              '/home',
+              (route) => false,
+            );
+          } else if (state is AuthGoogleSignInNeedsRole) {
+            // Show role selection dialog for Google sign-in
+            showDialog(
+              context: context,
+              barrierDismissible: false,
+              builder: (context) => RoleSelectionDialog(
+                onRoleSelected: (role) {
+                  context.read<AuthBloc>().add(
+                    CompleteGoogleSignInEvent(
+                      uid: state.user.uid,
+                      email: state.email,
+                      name: state.name,
+                      userType: role,
+                    ),
+                  );
+                },
+              ),
+            );
+          } else if (state is AuthEmailVerificationSent) {
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(
+                builder: (context) => EmailVerificationScreen(email: state.email),
+              ),
+            );
             Future.microtask(() {
               Navigator.of(context).pushNamedAndRemoveUntil(
                 '/home',
