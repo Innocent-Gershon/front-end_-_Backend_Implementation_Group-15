@@ -30,8 +30,7 @@ class _SignUpPageState extends State<SignUpPage> {
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
   String _selectedUserType = AppConstants.student;
-  bool _isDropdownOpen =
-      false; // State to control the blur and dropdown visibility
+  bool _isDropdownOpen = false;
 
   @override
   void dispose() {
@@ -51,6 +50,7 @@ class _SignUpPageState extends State<SignUpPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Colors.blue.shade50,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
@@ -73,7 +73,7 @@ class _SignUpPageState extends State<SignUpPage> {
             ),
           ],
         ),
-        centerTitle: true,
+        centerTitle: false,
       ),
       body: BlocConsumer<AuthBloc, AuthState>(
         listener: (context, state) {
@@ -81,7 +81,6 @@ class _SignUpPageState extends State<SignUpPage> {
             String displayMessage = state.message;
             bool shouldShowDialog = false;
             
-            // Check for special dialog triggers
             if (state.message.startsWith('SHOW_LOGIN_DIALOG:')) {
               displayMessage = state.message.substring('SHOW_LOGIN_DIALOG:'.length);
               shouldShowDialog = true;
@@ -97,7 +96,6 @@ class _SignUpPageState extends State<SignUpPage> {
               ),
             );
             
-            // Show login dialog if email already exists
             if (shouldShowDialog) {
               Future.delayed(const Duration(milliseconds: 800), () {
                 showDialog(
@@ -120,7 +118,7 @@ class _SignUpPageState extends State<SignUpPage> {
                       ElevatedButton(
                         onPressed: () {
                           Navigator.pop(context);
-                          Navigator.pop(context); // Go back to login
+                          Navigator.pop(context);
                         },
                         child: const Text('Login'),
                       ),
@@ -135,7 +133,6 @@ class _SignUpPageState extends State<SignUpPage> {
               (route) => false,
             );
           } else if (state is AuthGoogleSignInNeedsRole) {
-            // Show role selection dialog for Google sign-in
             showDialog(
               context: context,
               barrierDismissible: false,
@@ -163,8 +160,7 @@ class _SignUpPageState extends State<SignUpPage> {
         builder: (context, state) {
           return Stack(
             children: [
-              // --- Main Content (always present) ---
-              // Your existing form content
+              // Main Content
               SafeArea(
                 child: SingleChildScrollView(
                   padding: const EdgeInsets.all(24.0),
@@ -173,46 +169,45 @@ class _SignUpPageState extends State<SignUpPage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        const SizedBox(height: 20),
+                        const SizedBox(height: 8),
 
                         // Create account text
-                        Text(
-                          _getSignupTitle(),
-                          style: Theme.of(context).textTheme.headlineMedium,
-                          textAlign: TextAlign.center,
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            _getSignupTitle(),
+                            style: Theme.of(context).textTheme.headlineMedium,
+                          ),
                         ),
 
                         const SizedBox(height: 8),
 
-                        Text(
-                          _getSignupSubtitle(),
-                          style: Theme.of(context).textTheme.bodyLarge,
-                          textAlign: TextAlign.center,
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            _getSignupSubtitle(),
+                            style: Theme.of(context).textTheme.bodyLarge,
+                          ),
                         ),
 
                         const SizedBox(height: 32),
 
-                        // Creative user type selector (this is now a GestureDetector for blur)
+                        // User type selector
                         Row(
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
                             GestureDetector(
-                              // Wrap with GestureDetector to control _isDropdownOpen
                               onTap: () {
                                 setState(() {
                                   _isDropdownOpen = !_isDropdownOpen;
                                 });
                               },
                               child: AnimatedContainer(
-                                // To animate size/color if desired
                                 duration: const Duration(milliseconds: 300),
-                                width: 200, // Fixed width for the button area
+                                width: 200,
                                 decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(
-                                    16,
-                                  ), // Match dropdown style
+                                  borderRadius: BorderRadius.circular(16),
                                   gradient: LinearGradient(
-                                    // Match dropdown style
                                     colors: [
                                       Colors.blue.shade600,
                                       Colors.blue.shade400,
@@ -316,12 +311,9 @@ class _SignUpPageState extends State<SignUpPage> {
                             if (value == null || value.isEmpty) {
                               return 'Please enter your email';
                             }
-                            if (!RegExp(
-                              r'^[^@]+@[^@]+\.[^@]+',
-                            ).hasMatch(value)) {
+                            if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
                               return 'Please enter a valid email';
                             }
-
                             return null;
                           },
                         ),
@@ -376,8 +368,7 @@ class _SignUpPageState extends State<SignUpPage> {
                               ),
                               onPressed: () {
                                 setState(() {
-                                  _obscureConfirmPassword =
-                                      !_obscureConfirmPassword;
+                                  _obscureConfirmPassword = !_obscureConfirmPassword;
                                 });
                               },
                             ),
@@ -407,16 +398,13 @@ class _SignUpPageState extends State<SignUpPage> {
                                         'userType': _selectedUserType,
                                       };
 
-                                      if (_selectedUserType ==
-                                          AppConstants.student) {
+                                      if (_selectedUserType == AppConstants.student) {
                                         additionalData['studentId'] =
                                             _studentIdController.text.trim();
-                                      } else if (_selectedUserType ==
-                                          AppConstants.teacher) {
+                                      } else if (_selectedUserType == AppConstants.teacher) {
                                         additionalData['employeeId'] =
                                             _employeeIdController.text.trim();
-                                      } else if (_selectedUserType ==
-                                          AppConstants.parent) {
+                                      } else if (_selectedUserType == AppConstants.parent) {
                                         additionalData['phoneNumber'] =
                                             _phoneController.text.trim();
                                         additionalData['childName'] =
@@ -478,12 +466,9 @@ class _SignUpPageState extends State<SignUpPage> {
                           children: [
                             const Expanded(child: Divider()),
                             Padding(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 16,
-                              ),
+                              padding: const EdgeInsets.symmetric(horizontal: 16),
                               child: Text(
                                 'Or Sign Up with ',
-                                // style: Theme.of(context).textTheme.bodyMedium,
                                 style: const TextStyle(
                                   color: Color.fromARGB(255, 42, 40, 40),
                                 ),
@@ -537,11 +522,7 @@ class _SignUpPageState extends State<SignUpPage> {
                             const SizedBox(width: 8),
                             Expanded(
                               child: OutlinedButton.icon(
-                                onPressed: state is AuthLoading
-                                    ? null
-                                    : () {
-                                        // TODO: Apple signup
-                                      },
+                                onPressed: state is AuthLoading ? null : () {},
                                 style: OutlinedButton.styleFrom(
                                   padding: const EdgeInsets.symmetric(
                                     horizontal: 8,
@@ -569,11 +550,7 @@ class _SignUpPageState extends State<SignUpPage> {
                             const SizedBox(width: 8),
                             Expanded(
                               child: OutlinedButton.icon(
-                                onPressed: state is AuthLoading
-                                    ? null
-                                    : () {
-                                        // TODO: Facebook signup
-                                      },
+                                onPressed: state is AuthLoading ? null : () {},
                                 style: OutlinedButton.styleFrom(
                                   padding: const EdgeInsets.symmetric(
                                     horizontal: 12,
@@ -638,50 +615,37 @@ class _SignUpPageState extends State<SignUpPage> {
                 ),
               ),
 
-              // --- Modal Barrier (full-screen blur overlay) ---
-              // This layer will appear when the dropdown is open.
+              // Modal Barrier (blur overlay)
               if (_isDropdownOpen)
                 Positioned.fill(
                   child: GestureDetector(
                     onTap: () {
                       setState(() {
-                        _isDropdownOpen =
-                            false; // Close dropdown on tap outside
+                        _isDropdownOpen = false;
                       });
                     },
                     child: AnimatedContainer(
                       duration: const Duration(milliseconds: 300),
-                      color: Colors.black.withValues(
-                        alpha: 0.0,
-                      ), // Initially transparent
-                      // A BackdropFilter here will blur everything below it.
-                      // Since this is above the main content, it blurs the main content.
+                      color: Colors.black.withValues(alpha: 0.0),
                       child: BackdropFilter(
-                        filter: ImageFilter.blur(
-                          sigmaX: 5.0,
-                          sigmaY: 5.0,
-                        ), // Apply blur
+                        filter: ImageFilter.blur(sigmaX: 5.0, sigmaY: 5.0),
                         child: Container(
-                          color: Colors.black.withValues(
-                            alpha: 0.1,
-                          ), // Light overlay color
+                          color: Colors.black.withValues(alpha: 0.1),
                         ),
                       ),
                     ),
                   ),
                 ),
 
-              // --- Custom Dropdown (on top of the blur) ---
+              // Custom Dropdown
               if (_isDropdownOpen)
                 Positioned(
-                  top:
-                      280, // Adjust this top value to position the dropdown correctly
-                  right: 24, // Keep it aligned with the user type selector
+                  top: 280,
+                  right: 24,
                   child: Material(
                     color: Colors.transparent,
                     child: Container(
-                      width:
-                          200, // Match the width of the GestureDetector container
+                      width: 200,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(16),
                         color: Colors.white.withValues(alpha: 0.95),
@@ -696,28 +660,13 @@ class _SignUpPageState extends State<SignUpPage> {
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(16),
                         child: BackdropFilter(
-                          filter: ImageFilter.blur(
-                            sigmaX: 0,
-                            sigmaY: 0,
-                          ), // No blur on the dropdown itself
+                          filter: ImageFilter.blur(sigmaX: 0, sigmaY: 0),
                           child: Column(
                             children: [
-                              _buildDropdownItem(
-                                AppConstants.student,
-                                Icons.school,
-                              ),
-                              _buildDropdownItem(
-                                AppConstants.teacher,
-                                Icons.person_outline,
-                              ),
-                              _buildDropdownItem(
-                                AppConstants.parent,
-                                Icons.family_restroom,
-                              ),
-                              _buildDropdownItem(
-                                AppConstants.admin,
-                                Icons.admin_panel_settings,
-                              ),
+                              _buildDropdownItem(AppConstants.student, Icons.school),
+                              _buildDropdownItem(AppConstants.teacher, Icons.person_outline),
+                              _buildDropdownItem(AppConstants.parent, Icons.family_restroom),
+                              _buildDropdownItem(AppConstants.admin, Icons.admin_panel_settings),
                             ],
                           ),
                         ),
@@ -732,7 +681,6 @@ class _SignUpPageState extends State<SignUpPage> {
     );
   }
 
-  // --- Helper methods (same as before) ---
   IconData _getUserTypeIcon(String userType) {
     switch (userType) {
       case AppConstants.student:
@@ -779,11 +727,11 @@ class _SignUpPageState extends State<SignUpPage> {
   }
 
   List<Widget> _buildStudentFields() {
-    return []; // You might want to add specific student fields here
+    return [];
   }
 
   List<Widget> _buildTeacherFields() {
-    return []; // You might want to add specific teacher fields here
+    return [];
   }
 
   List<Widget> _buildParentFields() {
@@ -800,9 +748,8 @@ class _SignUpPageState extends State<SignUpPage> {
           if (value == null || value.isEmpty) {
             return 'Please enter your phone number';
           }
-          if (!RegExp(
-            r'^[+]?[0-9]{10,15}$',
-          ).hasMatch(value.replaceAll(RegExp(r'[\s-()]'), ''))) {
+          if (!RegExp(r'^[+]?[0-9]{10,15}$')
+              .hasMatch(value.replaceAll(RegExp(r'[\s-()]'), ''))) {
             return 'Please enter a valid phone number';
           }
           return null;
@@ -842,13 +789,12 @@ class _SignUpPageState extends State<SignUpPage> {
     ];
   }
 
-  // This is the new buildDropdownItem method for the custom dropdown overlay
   Widget _buildDropdownItem(String value, IconData icon) {
     return GestureDetector(
       onTap: () {
         setState(() {
           _selectedUserType = value;
-          _isDropdownOpen = false; // Close dropdown when an item is selected
+          _isDropdownOpen = false;
         });
       },
       child: Container(
@@ -869,9 +815,7 @@ class _SignUpPageState extends State<SignUpPage> {
             Text(
               value,
               style: TextStyle(
-                color: _selectedUserType == value
-                    ? Colors.blue
-                    : Colors.black87,
+                color: _selectedUserType == value ? Colors.blue : Colors.black87,
                 fontWeight: _selectedUserType == value
                     ? FontWeight.bold
                     : FontWeight.w500,
