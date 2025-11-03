@@ -73,21 +73,32 @@ class _HomeScreenContentState extends State<_HomeScreenContent> {
   Widget build(BuildContext context) {
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle(
-        statusBarColor: Color(0xFFF8FAFC),
-        statusBarIconBrightness: Brightness.dark,
+        statusBarColor: Color(0xFF3366FF),
+        statusBarIconBrightness: Brightness.light,
       ),
       child: Scaffold(
         backgroundColor: Color(0xFFF8FAFC),
-        body: SafeArea(
-          child: CustomScrollView(
-            slivers: [
-              SliverToBoxAdapter(child: _buildProfileHeader(context)),
-              SliverToBoxAdapter(child: _buildCategoriesSection(context)),
-              SliverToBoxAdapter(child: _buildMyTaskSection(context)),
-              SliverToBoxAdapter(child: _buildRecentUpdatesSection(context)),
-              SliverToBoxAdapter(child: SizedBox(height: 100)),
-            ],
+        appBar: AppBar(
+          backgroundColor: Color(0xFF3366FF),
+          elevation: 0,
+          title: Text(
+            'EduBridge',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 20,
+              fontWeight: FontWeight.w600,
+            ),
           ),
+          centerTitle: true,
+        ),
+        body: CustomScrollView(
+          slivers: [
+            SliverToBoxAdapter(child: _buildProfileHeader(context)),
+            SliverToBoxAdapter(child: _buildCategoriesSection(context)),
+            SliverToBoxAdapter(child: _buildMyTaskSection(context)),
+            SliverToBoxAdapter(child: _buildRecentUpdatesSection(context)),
+            SliverToBoxAdapter(child: SizedBox(height: 100)),
+          ],
         ),
         bottomNavigationBar: _buildIOSBottomNav(),
       ),
@@ -224,7 +235,7 @@ class _HomeScreenContentState extends State<_HomeScreenContent> {
             ],
           ),
           SizedBox(height: 20),
-          Container(height: 1, color: Color(0xFFF5F5F5)),
+          Container(height: 1, color: Color(0xFFD0D0D0)),
         ],
       ),
     );
